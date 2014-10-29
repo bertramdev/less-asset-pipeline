@@ -1,6 +1,8 @@
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
-// apply plugin: 'asset-pipeline'
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
 group = 'com.bertramlabs.plugins'
 version = '2.0.0'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
@@ -11,7 +13,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        // classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3"
     }
 }
 
@@ -49,6 +51,18 @@ publishing {
     }
 }
 
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+    publications = ['maven']
+    pkg {
+        repo = 'asset-pipeline'
+        userOrg = 'bertramlabs'
+        name = 'less-asset-pipeline'
+        licenses = ['Apache-2.0']
+    }
+}
+
 sourceSets {
     main.groovy.srcDir 'src'
     test.groovy.srcDir 'test'
@@ -77,4 +91,4 @@ test {
 }
 
 
-// bintrayUpload.dependsOn build, sourcesJar, javadocJar
+bintrayUpload.dependsOn build, sourcesJar, javadocJar

@@ -2,13 +2,14 @@ package asset.pipeline.less
 
 import asset.pipeline.AssetHelper
 import asset.pipeline.CacheManager
+import groovy.util.logging.Commons
 import groovy.util.logging.Log4j
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.JavaScriptException
 import org.mozilla.javascript.NativeArray
 import org.mozilla.javascript.Scriptable
 
-@Log4j
+@Commons
 class LessProcessor {
     public static final java.lang.ThreadLocal threadLocal = new ThreadLocal();
     Scriptable globalScope

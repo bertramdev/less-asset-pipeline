@@ -1,6 +1,7 @@
 package asset.pipeline.less
 
 import asset.pipeline.AbstractAssetFile
+import asset.pipeline.AssetCompiler
 import asset.pipeline.AssetHelper
 import asset.pipeline.CacheManager
 import asset.pipeline.processors.CssProcessor
@@ -12,10 +13,9 @@ class LessAssetFile extends AbstractAssetFile {
     static processors = [CssProcessor]
     static compilerMode = 'less4j'
 
-    String processedStream(precompiler) {
+    String processedStream(AssetCompiler precompiler) {
         def fileText
 		def skipCache = precompiler ?: (!processors || processors.size() == 0)
-		def cacheKey
 		if(baseFile?.encoding || encoding) {
 			fileText = inputStream?.getText(baseFile?.encoding ? baseFile.encoding : encoding)
 		} else {

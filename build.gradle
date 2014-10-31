@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'com.jfrog.bintray'
 
 group = 'com.bertramlabs.plugins'
-version = '2.0.0'
+version = '2.0.1-SNAPSHOT'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 buildscript {
@@ -27,9 +27,7 @@ repositories {
 
 
 dependencies {
-    compile gradleApi()
-	compile "com.bertramlabs.plugins:asset-pipeline-core:2.0.0"
-    // compile localGroovy()
+	compile "com.bertramlabs.plugins:asset-pipeline-core:2.0.2-SNAPSHOT"
 	compile 'org.codehaus.groovy:groovy-all:2.2.2'
     compile 'org.mozilla:rhino:1.7R4'
     compile 'log4j:log4j:1.2.17'
@@ -63,10 +61,6 @@ bintray {
     }
 }
 
-sourceSets {
-    main.groovy.srcDir 'src'
-    test.groovy.srcDir 'test'
-}
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'

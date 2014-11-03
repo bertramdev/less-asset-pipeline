@@ -24,7 +24,7 @@ class LessAssetFile extends AbstractAssetFile {
 
 		def md5 = AssetHelper.getByteDigest(fileText.bytes)
 		if(!skipCache) {
-			def cache = CacheManager.findCache(canonicalPath, md5, baseFile?.path)
+			def cache = CacheManager.findCache(path, md5, baseFile?.path)
 			if(cache) {
 				return cache
 			}

@@ -5,6 +5,7 @@ import asset.pipeline.AssetCompiler
 import asset.pipeline.AssetHelper
 import asset.pipeline.CacheManager
 import asset.pipeline.processors.CssProcessor
+import java.util.regex.Pattern
 
 class LessAssetFile extends AbstractAssetFile {
     static final String contentType = 'text/css'
@@ -12,6 +13,8 @@ class LessAssetFile extends AbstractAssetFile {
     static final String compiledExtension = 'css'
     static processors = [CssProcessor]
     static compilerMode = 'less4j'
+    static Pattern directivePattern = ~/(?m)\*=(.*)/
+
 
     String processedStream(AssetCompiler precompiler) {
         def fileText
@@ -50,7 +53,4 @@ class LessAssetFile extends AbstractAssetFile {
 		return fileText
     }
 
-    String directiveForLine(String line) {
-        line.find(/\*=(.*)/) { fullMatch, directive -> return directive }
-    }
 }

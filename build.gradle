@@ -34,7 +34,7 @@ dependencies {
 	compile "com.github.sommeri:less4j:1.6.0"
     compile "com.github.sommeri:less4j-javascript:0.0.1"
 
-    compile "org.spockframework:spock-core:0.7-groovy-2.0"
+    testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
 }
 
 publishing {

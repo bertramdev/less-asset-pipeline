@@ -55,29 +55,6 @@ class AssetPipelineLessSource extends LessSource {
 				return new AssetPipelineLessSource(newFile, null, options)
 			}
 
- 		   //  if(matchedPath) {
- 		   //  	def matchedFile = new File(matchedPath,filename)
- 		   //  	if(options.baseFile) {
-			// 		CacheManager.addCacheDependency(options.baseFile.file.canonicalPath, matchedFile)
-			//
- 		   //  	}
- 		   //  	return new AssetPipelineLessSource(matchedFile,null,options)
- 		   //  }
-
- 		   //  def matchingPath =
-		    // log.debug "resolveUri: path=${path}"
-		    // for (Object index : paths.getIds()) {
-		    //   def it = paths.get(index, null)
-		    //   def file = new File(it, path)
-		    //   log.trace "test exists: ${file}"
-		    //   if (file.exists()) {
-		    //     log.trace "found file: ${file}"
-		    //     if(assetFile) {
-		    //       CacheManager.addCacheDependency(assetFile.file.canonicalPath, file)
-		    //     }
-		    //     return file.toURI().toString()
-		    //   }
-		    // }
 
 		    return null
  	}

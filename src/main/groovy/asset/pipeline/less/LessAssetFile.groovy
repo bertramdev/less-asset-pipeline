@@ -13,8 +13,7 @@ class LessAssetFile extends AbstractAssetFile {
     static final String compiledExtension = 'css'
     static processors = [CssProcessor]
     static compilerMode = 'less4j'
-    static Pattern directivePattern = ~/(?m)\*=(.*)/
-
+    Pattern directivePattern = ~/(?m)\*=(.*)/
 
     String processedStream(AssetCompiler precompiler) {
         def fileText

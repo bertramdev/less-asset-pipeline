@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'com.jfrog.bintray'
 
 group = 'com.bertramlabs.plugins'
-version = '2.0.1-SNAPSHOT'
+version = '2.0.2'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 buildscript {
@@ -27,7 +27,7 @@ repositories {
 
 
 dependencies {
-	compile "com.bertramlabs.plugins:asset-pipeline-core:2.0.2-SNAPSHOT"
+	compile "com.bertramlabs.plugins:asset-pipeline-core:2.0.2"
     compile 'org.mozilla:rhino:1.7R4'
     compile 'log4j:log4j:1.2.17'
 	compile "com.github.sommeri:less4j:1.6.0"

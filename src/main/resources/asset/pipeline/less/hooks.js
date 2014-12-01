@@ -5,7 +5,8 @@
  * @param {Object} data
  */
 Envjs.connection = function(xhr, responseHandler, data){
-    var url = java.net.URL(xhr.url),
+    print("Looking for URL " + xhr.url);
+    var url,
         connection,
         header,
         outstream,
@@ -17,8 +18,17 @@ Envjs.connection = function(xhr, responseHandler, data){
         instream,
         responseXML,
         i;
-    if ( /^file\:/.test(url) ) {
+        try {
+            url = Packages.asset.pipeline.less.LessProcessor.getURL(xhr.url)
+            //url = java.net.URL(xhr.url)
+            print("Checking if its a file or asset");
+        } catch(e) {
+            print(e)
+        }
+
+    if ( /^file\:/.test(url)  || /^asset\:/.test(url)  ) {
         try{
+
             if ( "PUT" == xhr.method || "POST" == xhr.method ) {
                 data =  data || "" ;
                 Envjs.writeToFile(data, url);
@@ -33,6 +43,7 @@ Envjs.connection = function(xhr, responseHandler, data){
                 xhr.status = 200;
                 xhr.statusText = "";
             } else {
+                print("Loading Asset = " + url);
                 connection = url.openConnection();
                 connection.connect();
                 //try to add some canned headers that make sense
@@ -57,17 +68,20 @@ Envjs.connection = function(xhr, responseHandler, data){
                     //xhr.responseHeaders['Content-Length'] = headerValue+'';
                     //xhr.responseHeaders['Date'] = new Date()+'';*/
                 }catch(e){
+                    print("Error loading asset");
                     console.log('failed to load response headers',e);
                 }
             }
         }catch(e){
+            print("Failed to open file " + e);
             console.log('failed to open file %s %s', url, e);
             connection = null;
             xhr.readyState = 4;
             xhr.statusText = "Local File Protocol Error";
             xhr.responseText = "<html><head/><body><p>"+ e+ "</p></body></html>";
         }
-    } else {
+    }
+     else {
         connection = url.openConnection();
         connection.setRequestMethod( xhr.method );
 
@@ -113,6 +127,7 @@ Envjs.connection = function(xhr, responseHandler, data){
                     xhr.responseHeaders[name+''] = value+'';
             }
         }catch(e){
+            print("Failed to load response headers")
             console.log('failed to load response headers \n%s',e);
         }
 
@@ -125,6 +140,7 @@ Envjs.connection = function(xhr, responseHandler, data){
         responseXML = null;
 
         try{
+            print("Trying to fetch File")
             //console.log('contentEncoding %s', contentEncoding);
             if( contentEncoding.equalsIgnoreCase("gzip") ||
                 contentEncoding.equalsIgnoreCase("decompress")){
@@ -135,6 +151,7 @@ Envjs.connection = function(xhr, responseHandler, data){
                 instream = new java.util.zip.GZIPInputStream(connection.getInputStream())
             }else{
                 //this is a text file
+                print("Its a text file not a gzip")
                 outstream = new java.io.StringWriter();
                 buffer = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
                 instream = new java.io.InputStreamReader(connection.getInputStream());
@@ -201,6 +218,7 @@ Envjs.uri = function(path, base) {
 
         var newurl = new String(Packages.asset.pipeline.less.LessProcessor.resolveUri(path, globalPaths));
         // console.log('newurl is [%s]', newurl);
+        print("New URL IS: " + newurl);
         return newurl;
     }
 
@@ -224,7 +242,6 @@ Envjs.uri = function(path, base) {
     // handles all cases if path is abosulte or relative to base
     // 3rd arg is "false" --> remove fragments
     var newurl = urlparse.urlnormalize(urlparse.urljoin(base, path, false));
-
     console.log('uri %s', newurl);
 
     return newurl;

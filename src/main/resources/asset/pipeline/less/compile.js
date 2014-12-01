@@ -1,5 +1,5 @@
 var compile = function(fileText, paths) {
-
+    print("Prepping LESS COMPILATION " + fileText);
     globalPaths = paths;
 
     var parser = new(less.Parser);

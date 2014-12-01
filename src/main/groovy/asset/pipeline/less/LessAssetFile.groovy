@@ -4,6 +4,7 @@ import asset.pipeline.AbstractAssetFile
 import asset.pipeline.AssetCompiler
 import asset.pipeline.AssetHelper
 import asset.pipeline.CacheManager
+import asset.pipeline.AssetPipelineConfigHolder
 import asset.pipeline.processors.CssProcessor
 import java.util.regex.Pattern
 
@@ -12,7 +13,6 @@ class LessAssetFile extends AbstractAssetFile {
     static extensions = ['less', 'css.less']
     static final String compiledExtension = 'css'
     static processors = [CssProcessor]
-    static compilerMode = 'less4j'
     Pattern directivePattern = ~/(?m)\*=(.*)/
 
     String processedStream(AssetCompiler precompiler) {
@@ -33,7 +33,8 @@ class LessAssetFile extends AbstractAssetFile {
 		}
 
         def lessProcessor
-        if (compilerMode == 'less4j') {
+        def compilerMode = AssetPipelineConfigHolder.config?.less?.compiler ?: 'less4j'
+        if (compilerMode != 'standard') {
             lessProcessor = new Less4jProcessor(precompiler)
         } else {
             lessProcessor = new LessProcessor(precompiler)

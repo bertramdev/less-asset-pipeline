@@ -2,22 +2,26 @@ package asset.pipeline.less
 
 import asset.pipeline.AssetHelper
 import asset.pipeline.CacheManager
+import asset.pipeline.AbstractProcessor
+import asset.pipeline.AssetCompiler
+import asset.pipeline.AssetFile
 import groovy.util.logging.Commons
 import groovy.util.logging.Log4j
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.JavaScriptException
 import org.mozilla.javascript.NativeArray
 import org.mozilla.javascript.Scriptable
+import sun.net.www.protocol.asset.Handler
 
 @Commons
-class LessProcessor {
+class LessProcessor extends AbstractProcessor {
     public static final java.lang.ThreadLocal threadLocal = new ThreadLocal();
     Scriptable globalScope
     ClassLoader classLoader
-    def precompilerMode
 
-    LessProcessor(precompiler = false) {
-        this.precompilerMode = precompiler ? true : false
+
+    LessProcessor(AssetCompiler precompiler) {
+        super(precompiler)
         try {
             classLoader = getClass().getClassLoader()
 
@@ -26,8 +30,8 @@ class LessProcessor {
             def hooksJsResource = classLoader.getResource('asset/pipeline/less/hooks.js')
             def lessJsResource = classLoader.getResource('asset/pipeline/less/less-1.7.0.js')
             def compileJsResource = classLoader.getResource('asset/pipeline/less/compile.js')
-
             Context cx = Context.enter()
+
             cx.setOptimizationLevel(-1)
             globalScope = cx.initStandardObjects()
             this.evaluateJavascript(cx, shellJsResource)
@@ -48,49 +52,28 @@ class LessProcessor {
 
     def evaluateJavascript(context, resource) {
         // def inputStream = resource.inputStream
-        context.evaluateString scope, resource.text, resource.file, 1, null
-
-        // context.evaluateReader(globalScope, new InputStreamReader(inputStream, 'UTF-8'), resource.filename, 0, null)
+        context.evaluateString globalScope, resource.getText('UTF-8'), resource.file, 1, null
 
     }
 
-    def process(input, assetFile) {
+    String process(String input, AssetFile assetFile) {
         try {
-            if (!this.precompilerMode) {
-                threadLocal.set(assetFile);
-            }
-            def assetRelativePath = relativePath(assetFile.file)
-            // def paths = AssetHelper.scopedDirectoryPaths(new File("grails-app/assets").getAbsolutePath())
+            threadLocal.set(assetFile);
 
-            // paths += [assetFile.file.getParent()]
-            def paths = AssetHelper.getAssetPaths()
-            def relativePaths = paths.collect { [it, assetRelativePath].join(AssetHelper.DIRECTIVE_FILE_SEPARATOR) }
-            // println paths
-            paths = relativePaths + paths
-
-
-            def pathstext = paths.collect {
-                def p = it.replaceAll("\\\\", "/")
-                if (p.endsWith("/")) {
-                    "'${p}'"
-                } else {
-                    "'${p}/'"
-                }
-            }.toString()
 
             def cx = Context.enter()
             def compileScope = cx.newObject(globalScope)
             compileScope.setParentScope(globalScope)
             compileScope.put("lessSrc", compileScope, input)
 
-            def result = cx.evaluateString(compileScope, "compile(lessSrc, ${pathstext})", "LESS compile command", 0, null)
-            return result
+            def result = cx.evaluateString(compileScope, "compile(lessSrc, ['assets'])", "LESS compile command", 0, null)
+            return result.toString()
         } catch (JavaScriptException e) {
             // [type:Name, message:variable @alert-padding is undefined, filename:input, index:134.0, line:10.0, callLine:NaN, callExtract:null, stack:null, column:11.0, extract:[.alert {,   padding: @alert-padding;,   margin-bottom: @line-height-computed;]
             org.mozilla.javascript.NativeObject errorMeta = (org.mozilla.javascript.NativeObject) e.value
 
-            def errorDetails = "LESS Engine Compiler Failed - ${assetFile.file.name}.\n"
-            if (precompilerMode) {
+            def errorDetails = "LESS Engine Compiler Failed - ${assetFile.path}.\n"
+            if (precompiler) {
                 errorDetails += "**Did you mean to compile this file individually (check docs on exclusion)?**\n"
             }
             if (errorMeta && errorMeta.get('message')) {
@@ -106,7 +89,7 @@ class LessProcessor {
                 errorDetails += "    --------------------------------------------\n\n"
             }
 
-            if (precompilerMode && !assetFile.baseFile) {
+            if (precompiler && !assetFile.baseFile) {
                 log.error(errorDetails)
                 return input
             } else {
@@ -127,47 +110,41 @@ class LessProcessor {
         log.debug text
     }
 
+    static URL getURL(String uri) {
+        return new java.net.URL(null,uri, new Handler());
+    }
+
     static String resolveUri(String path, NativeArray paths) {
-        def assetFile = threadLocal.get();
-        log.debug "resolveUri: path=${path}"
-        for (Object index : paths.getIds()) {
-            def it = paths.get(index, null)
-            def file = new File(it, path)
-            log.trace "test exists: ${file}"
-            if (file.exists()) {
-                log.trace "found file: ${file}"
-                if (assetFile) {
-                    CacheManager.addCacheDependency(assetFile.file.canonicalPath, file)
-                }
-                return file.toURI().toString()
+        try {
+            def fileName = AssetHelper.nameWithoutExtension(path)
+            def assetFile = threadLocal.get();
+            def newFile
+            if( fileName.startsWith( AssetHelper.DIRECTIVE_FILE_SEPARATOR ) ) {
+                newFile = AssetHelper.fileForUri( fileName, 'text/css', null, assetFile?.baseFile )
             }
+            else {
+                def relativeFileName = [ assetFile.parentPath, fileName ].join( AssetHelper.DIRECTIVE_FILE_SEPARATOR )
+                newFile = AssetHelper.fileForUri( relativeFileName, 'text/css', null, assetFile?.baseFile )
+            }
+
+            if( !newFile && !fileName.startsWith( AssetHelper.DIRECTIVE_FILE_SEPARATOR ) ) {
+                newFile = AssetHelper.fileForUri( AssetHelper.DIRECTIVE_FILE_SEPARATOR + fileName, 'text/css', null, assetFile?.baseFile )
+            }
+            else if (!newFile) {
+                log.warn( "Unable to Locate Asset: ${ fileName }" )
+            }
+
+            if (newFile) {
+
+                CacheManager.addCacheDependency(assetFile.path, newFile)
+                return "asset:///${newFile.path}".toString()
+            }
+            return null
+        } catch(e) {
+            log.error("Error Resolving URI For LESS Engine",e)
+            return null
         }
 
-        return null
     }
 
-    def relativePath(file, includeFileName = false) {
-        def path
-        if (includeFileName) {
-            path = file.class.name == 'java.io.File' ? file.getCanonicalPath().split(AssetHelper.QUOTED_FILE_SEPARATOR) : file.file.getCanonicalPath().split(AssetHelper.QUOTED_FILE_SEPARATOR)
-        } else {
-            path = file.getParent().split(AssetHelper.QUOTED_FILE_SEPARATOR)
-        }
-
-        def startPosition = path.findLastIndexOf { it == "grails-app" }
-        if (startPosition == -1) {
-            startPosition = path.findLastIndexOf { it == 'web-app' }
-            if (startPosition + 2 >= path.length) {
-                return ""
-            }
-            path = path[(startPosition + 2)..-1]
-        } else {
-            if (startPosition + 3 >= path.length) {
-                return ""
-            }
-            path = path[(startPosition + 3)..-1]
-        }
-
-        return path.join(AssetHelper.DIRECTIVE_FILE_SEPARATOR)
-    }
 }

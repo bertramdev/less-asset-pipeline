@@ -4,8 +4,15 @@ apply plugin: 'maven'
 apply plugin: 'com.jfrog.bintray'
 
 group = 'com.bertramlabs.plugins'
-version = '2.0.5'
+version = '2.0.7'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+if(!project.hasProperty('bintrayUser')) {
+    bintrayUser = 'test'
+}
+if(!project.hasProperty('bintrayKey')) {
+    bintrayKey = 'empty'
+}
 
 buildscript {
     repositories {

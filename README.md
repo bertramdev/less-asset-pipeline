@@ -16,8 +16,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.bertramlabs.plugins.asset-pipeline-gradle:2.0.6'
-        classpath 'com.bertramlabs.plugins.less-asset-pipeline:2.0.5'
+        classpath 'com.bertramlabs.plugins.asset-pipeline-gradle:2.0.7'
+        classpath 'com.bertramlabs.plugins.less-asset-pipeline:2.0.7'
     }
 }
 ```
@@ -47,7 +47,7 @@ This plugin now defaults to compiling your less files with less4j instead of the
 
 ```gradle
 assets {
-    config = [
+    configOptions = [
       less: [
         compiler: 'standard'
       ]

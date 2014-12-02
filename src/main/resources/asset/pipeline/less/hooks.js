@@ -21,7 +21,6 @@ Envjs.connection = function(xhr, responseHandler, data){
         try {
             url = Packages.asset.pipeline.less.LessProcessor.getURL(xhr.url)
             //url = java.net.URL(xhr.url)
-            print("Checking if its a file or asset");
         } catch(e) {
             print(e)
         }
@@ -43,7 +42,6 @@ Envjs.connection = function(xhr, responseHandler, data){
                 xhr.status = 200;
                 xhr.statusText = "";
             } else {
-                print("Loading Asset = " + url);
                 connection = url.openConnection();
                 connection.connect();
                 //try to add some canned headers that make sense
@@ -140,7 +138,6 @@ Envjs.connection = function(xhr, responseHandler, data){
         responseXML = null;
 
         try{
-            print("Trying to fetch File")
             //console.log('contentEncoding %s', contentEncoding);
             if( contentEncoding.equalsIgnoreCase("gzip") ||
                 contentEncoding.equalsIgnoreCase("decompress")){

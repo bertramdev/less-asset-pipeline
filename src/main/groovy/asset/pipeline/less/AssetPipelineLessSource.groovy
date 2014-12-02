@@ -52,6 +52,8 @@ class AssetPipelineLessSource extends LessSource {
             }
 
 			if(newFile) {
+				CacheManager.addCacheDependency(options.baseFile?.path ?: sourceFile.path, newFile)
+
 				return new AssetPipelineLessSource(newFile, null, options)
 			}
 

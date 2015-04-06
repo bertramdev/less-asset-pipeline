@@ -28,7 +28,7 @@ class LessProcessor extends AbstractProcessor {
             def shellJsResource = classLoader.getResource('asset/pipeline/less/shell.js')
             def envRhinoJsResource = classLoader.getResource('asset/pipeline/less/env.rhino.js')
             def hooksJsResource = classLoader.getResource('asset/pipeline/less/hooks.js')
-            def lessJsResource = classLoader.getResource('asset/pipeline/less/less-1.7.0.js')
+            def lessJsResource = classLoader.getResource('asset/pipeline/less/less-2.5.0.js')
             def compileJsResource = classLoader.getResource('asset/pipeline/less/compile.js')
             Context cx = Context.enter()
 

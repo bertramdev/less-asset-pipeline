@@ -7,7 +7,7 @@ For more information on how to use asset-pipeline, visit [here](http://www.githu
 Installation
 ------------
 
-Simply add this plugin to your classpath in gradle or dependencies list depending on how you are using it
+Add this plugin to your classpath in gradle or dependencies list depending on how you are using it:
 
 ```gradle
 //Example build.gradle file
@@ -16,8 +16,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.bertramlabs.plugins.asset-pipeline-gradle:2.0.8'
-        classpath 'com.bertramlabs.plugins.less-asset-pipeline:2.0.8'
+        classpath 'com.bertramlabs.plugins:asset-pipeline-gradle:2.2.0'
+        classpath 'com.bertramlabs.plugins:less-asset-pipeline:2.1.0'
     }
 }
 ```
@@ -25,7 +25,7 @@ buildscript {
 Usage
 -----
 
-Simply create files in your standard `assets/stylesheets` folder with extension `.less` or `.css.less`. You also may require other files by using the following requires syntax at the top of each file or the standard LESS import:
+Create files in your standard `assets/stylesheets` folder with extension `.less` or `.css.less`. You also may require other files by using the following requires syntax at the top of each file or the standard LESS import:
 
 ```css
 /*

@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'com.jfrog.bintray'
 
 group = 'com.bertramlabs.plugins'
-version = '2.1.0'
+version = '2.1.1'
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 if(!project.hasProperty('bintrayUser')) {
@@ -47,7 +47,7 @@ dependencies {
 	compile "com.bertramlabs.plugins:asset-pipeline-core:2.2.0"
     compile 'org.mozilla:rhino:1.7R4'
     compile 'log4j:log4j:1.2.17'
-	compile "com.github.sommeri:less4j:1.10.0"
+	compile "com.github.sommeri:less4j:1.11.0"
     compile "com.github.sommeri:less4j-javascript:0.0.1"
 
     testCompile "org.spockframework:spock-core:0.7-groovy-2.0"

@@ -5,7 +5,6 @@
  * @param {Object} data
  */
 Envjs.connection = function(xhr, responseHandler, data){
-    print("Looking for URL " + xhr.url);
     var url,
         connection,
         header,
@@ -148,7 +147,6 @@ Envjs.connection = function(xhr, responseHandler, data){
                 instream = new java.util.zip.GZIPInputStream(connection.getInputStream())
             }else{
                 //this is a text file
-                print("Its a text file not a gzip")
                 outstream = new java.io.StringWriter();
                 buffer = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
                 instream = new java.io.InputStreamReader(connection.getInputStream());
@@ -214,8 +212,6 @@ Envjs.uri = function(path, base) {
     if (!base) {
 
         var newurl = new String(Packages.asset.pipeline.less.LessProcessor.resolveUri(path, globalPaths));
-        // console.log('newurl is [%s]', newurl);
-        print("New URL IS: " + newurl);
         return newurl;
     }
 

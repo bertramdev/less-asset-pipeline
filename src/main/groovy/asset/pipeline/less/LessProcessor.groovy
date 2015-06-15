@@ -10,12 +10,14 @@ import groovy.util.logging.Log4j
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.JavaScriptException
 import org.mozilla.javascript.NativeArray
+import org.mozilla.javascript.NativeObject
 import org.mozilla.javascript.Scriptable
 import sun.net.www.protocol.asset.Handler
 
 @Commons
 class LessProcessor extends AbstractProcessor {
     public static final java.lang.ThreadLocal threadLocal = new ThreadLocal();
+    public static final java.lang.ThreadLocal resultsMap = new ThreadLocal();
     Scriptable globalScope
     ClassLoader classLoader
 
@@ -59,15 +61,25 @@ class LessProcessor extends AbstractProcessor {
     String process(String input, AssetFile assetFile) {
         try {
             threadLocal.set(assetFile);
-
+            resultsMap.set(null);
 
             def cx = Context.enter()
             def compileScope = cx.newObject(globalScope)
             compileScope.setParentScope(globalScope)
             compileScope.put("lessSrc", compileScope, input)
 
-            def result = cx.evaluateString(compileScope, "compile(lessSrc, ['assets'])", "LESS compile command", 0, null)
-            return result.toString()
+            cx.evaluateString(compileScope, "compile(lessSrc, ['assets'])", "LESS compile command", 0, null)
+            while(resultsMap.get() == null) {
+                Thread.sleep(5)
+            }
+
+            def results = resultsMap.get();
+            if(!results.get('success')) {
+                throw new Exception('Less Compiler Failed to Return Successfully.')
+            } else {
+                return results.get('css').toString();
+            }
+            // return result.toString()
         } catch (JavaScriptException e) {
             // [type:Name, message:variable @alert-padding is undefined, filename:input, index:134.0, line:10.0, callLine:NaN, callExtract:null, stack:null, column:11.0, extract:[.alert {,   padding: @alert-padding;,   margin-bottom: @line-height-computed;]
             org.mozilla.javascript.NativeObject errorMeta = (org.mozilla.javascript.NativeObject) e.value
@@ -96,22 +108,26 @@ class LessProcessor extends AbstractProcessor {
                 throw new Exception(errorDetails, e)
             }
 
-        } catch (Exception e) {
-            throw new Exception("""
-        LESS Engine compilation of LESS to CSS failed.
-        $e
-        """)
+        // } catch (Exception e) {
+        //     throw new Exception("""
+        // LESS Engine compilation of LESS to CSS failed.
+        // $e
+        // """)
         } finally {
             Context.exit()
         }
     }
 
     static void print(text) {
-        log.debug text
+        println text
     }
 
     static URL getURL(String uri) {
         return new java.net.URL(null,uri, new Handler());
+    }
+
+    static void setResults(NativeObject resultObject) {
+        resultsMap.set(resultObject);
     }
 
     static String resolveUri(String path, NativeArray paths) {

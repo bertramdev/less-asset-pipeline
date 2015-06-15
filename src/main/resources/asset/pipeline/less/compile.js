@@ -1,21 +1,16 @@
 var compile = function(fileText, paths) {
-    print("Prepping LESS COMPILATION " + fileText);
+    var me = this;
     globalPaths = paths;
 
     var parser = new(less.Parser);
 
     var result;
-    parser.parse(fileText, function (e, tree) {
-
-        if (tree)
-            result = tree.toCSS({ compress: false });
-
-        if (e instanceof Object) {
-            Packages.asset.pipeline.less.LessProcessor.print('There is '+e.type+' Error '+e.message+' on line '+e.line+' in column '+e.column);
-            throw e;
-        }
-
-    });
-
+    less.render(fileText,{}, function(e, output) {
+        var lessResults = {
+            success: true,
+            css: output.css
+        };
+        Packages.asset.pipeline.less.LessProcessor.setResults(lessResults)
+    })
     return result;
 };

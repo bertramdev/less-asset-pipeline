@@ -16,8 +16,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.bertramlabs.plugins:asset-pipeline-gradle:2.2.0'
-        classpath 'com.bertramlabs.plugins:less-asset-pipeline:2.1.1'
+        classpath 'com.bertramlabs.plugins:asset-pipeline-gradle:2.3.0'
+        classpath 'com.bertramlabs.plugins:less-asset-pipeline:2.3.0'
     }
 }
 ```

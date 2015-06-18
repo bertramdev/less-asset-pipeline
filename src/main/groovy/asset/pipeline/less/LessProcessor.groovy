@@ -75,13 +75,14 @@ class LessProcessor extends AbstractProcessor {
 
             def results = resultsMap.get();
             if(!results.get('success')) {
-                throw new Exception('Less Compiler Failed to Return Successfully.')
+                println "Error Processing Results ${results.get('error')}";
+                return ''
+                // throw new Exception('Less Compiler Failed to Return Successfully.')
             } else {
                 return results.get('css').toString();
             }
             // return result.toString()
         } catch (JavaScriptException e) {
-            // [type:Name, message:variable @alert-padding is undefined, filename:input, index:134.0, line:10.0, callLine:NaN, callExtract:null, stack:null, column:11.0, extract:[.alert {,   padding: @alert-padding;,   margin-bottom: @line-height-computed;]
             org.mozilla.javascript.NativeObject errorMeta = (org.mozilla.javascript.NativeObject) e.value
 
             def errorDetails = "LESS Engine Compiler Failed - ${assetFile.path}.\n"
@@ -101,12 +102,11 @@ class LessProcessor extends AbstractProcessor {
                 errorDetails += "    --------------------------------------------\n\n"
             }
 
-            if (precompiler && !assetFile.baseFile) {
-                log.error(errorDetails)
-                return input
-            } else {
+            // if (precompiler && !assetFile.baseFile) {
+            //     log.error(errorDetails)
+            // } else {
                 throw new Exception(errorDetails, e)
-            }
+            // }
 
         // } catch (Exception e) {
         //     throw new Exception("""
@@ -116,10 +116,15 @@ class LessProcessor extends AbstractProcessor {
         } finally {
             Context.exit()
         }
+        return input
     }
 
     static void print(text) {
         println text
+    }
+
+    static void error(text) {
+        log.error('LESS Compile Error: ' + text);
     }
 
     static URL getURL(String uri) {

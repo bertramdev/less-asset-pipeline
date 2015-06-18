@@ -6,10 +6,13 @@ var compile = function(fileText, paths) {
 
     var result;
     less.render(fileText,{}, function(e, output) {
-        var lessResults = {
-            success: true,
-            css: output.css
-        };
+        var lessResults = {};
+        if(output) {
+            lessResults.success = true
+            lessResults.css = output.css
+        } else {
+            throw(e);
+        }
         Packages.asset.pipeline.less.LessProcessor.setResults(lessResults)
     })
     return result;

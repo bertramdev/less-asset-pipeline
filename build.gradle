@@ -1,28 +1,26 @@
-apply plugin: 'groovy'
-apply plugin: 'maven-publish'
-apply plugin: 'maven'
-apply plugin: 'com.jfrog.bintray'
-
-group = 'com.bertramlabs.plugins'
-version = '2.1.1'
-ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
-
-if(!project.hasProperty('bintrayUser')) {
-    bintrayUser = 'test'
-}
-if(!project.hasProperty('bintrayKey')) {
-    bintrayKey = 'empty'
-}
-
 buildscript {
     repositories {
         mavenLocal()
         jcenter()
     }
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5"
     }
 }
+
+plugins {
+    id "com.jfrog.bintray" version "1.2"
+}
+
+apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
+group = 'com.bertramlabs.plugins'
+version = '2.3.0'
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+
 
 
 repositories {
@@ -44,10 +42,10 @@ sourceSets {
 
 dependencies {
     provided 'org.codehaus.groovy:groovy-all:2.0.7'
-	compile "com.bertramlabs.plugins:asset-pipeline-core:2.2.0"
+	compile "com.bertramlabs.plugins:asset-pipeline-core:2.3.0"
     compile 'org.mozilla:rhino:1.7R4'
     compile 'log4j:log4j:1.2.17'
-	compile "com.github.sommeri:less4j:1.11.0"
+	compile "com.github.sommeri:less4j:1.12.0"
     compile "com.github.sommeri:less4j-javascript:0.0.1"
 
     testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
@@ -92,8 +90,11 @@ publishing {
 }
 
 bintray {
-    user = bintrayUser
-    key = bintrayKey
+    if(project.hasProperty('bintrayUser')) {
+        user = bintrayUser
+        key = bintrayKey
+    }
+    
     publications = ['maven']
     pkg {
         repo = 'asset-pipeline'

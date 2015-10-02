@@ -18,6 +18,8 @@ import asset.pipeline.CacheManager
 import asset.pipeline.AssetHelper
 import asset.pipeline.AssetPipelineConfigHolder
 import asset.pipeline.AssetFile
+import asset.pipeline.AssetCompiler
+import asset.pipeline.processors.CssProcessor
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -25,12 +27,13 @@ import org.apache.commons.io.IOUtils;
 class AssetPipelineLessSource extends LessSource {
 	def sourceFile
 	String contents
+	AssetCompiler precompiler
 	Map options
 	public AssetPipelineLessSource(file, contents, options=[:]) {
 		sourceFile = file
 		this.options = options
 		this.contents = contents
-
+		this.precompiler = options.precompiler
 	}
 
  	public LessSource relativeSource(String fileName) {
@@ -66,7 +69,8 @@ class AssetPipelineLessSource extends LessSource {
 		if(contents) {
 			return contents
 		}
-		return sourceFile.inputStream.text
+		def cssProcessor = new CssProcessor(this.precompiler)
+		return cssProcessor.process(sourceFile.inputStream.text, sourceFile)
 	}
 
 	public byte[] getBytes() {

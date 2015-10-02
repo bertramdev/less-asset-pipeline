@@ -19,7 +19,7 @@ class Less4jProcessor extends AbstractProcessor {
 
     String process(String input, AssetFile assetFile) {
         try {
-            def lessSource = new AssetPipelineLessSource(assetFile, input, [baseFile: assetFile])
+            def lessSource = new AssetPipelineLessSource(assetFile, input, [baseFile: assetFile, precompiler: this.precompiler])
 
             LessCompiler.Configuration configuration = new LessCompiler.Configuration()
             Less4jJavascript.configure(configuration);

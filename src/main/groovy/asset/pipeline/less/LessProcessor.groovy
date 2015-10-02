@@ -7,6 +7,7 @@ import asset.pipeline.AssetCompiler
 import asset.pipeline.AssetFile
 import groovy.util.logging.Commons
 import groovy.util.logging.Log4j
+import asset.pipeline.processors.CssProcessor
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.JavaScriptException
 import org.mozilla.javascript.NativeArray
@@ -16,8 +17,9 @@ import sun.net.www.protocol.asset.Handler
 
 @Commons
 class LessProcessor extends AbstractProcessor {
-    public static final java.lang.ThreadLocal threadLocal = new ThreadLocal();
-    public static final java.lang.ThreadLocal resultsMap = new ThreadLocal();
+    public static final java.lang.ThreadLocal threadLocal   = new ThreadLocal();
+    public static final java.lang.ThreadLocal localCompiler = new ThreadLocal();
+    public static final java.lang.ThreadLocal resultsMap    = new ThreadLocal();
     Scriptable globalScope
     ClassLoader classLoader
 
@@ -61,6 +63,7 @@ class LessProcessor extends AbstractProcessor {
     String process(String input, AssetFile assetFile) {
         try {
             threadLocal.set(assetFile);
+            localCompiler.set(precompiler)
             resultsMap.set(null);
 
             def cx = Context.enter()
@@ -135,10 +138,24 @@ class LessProcessor extends AbstractProcessor {
         resultsMap.set(resultObject);
     }
 
+    static String contentForURL(String text, URL url) {
+        def assetFile = threadLocal.get();
+        def precompiler = localCompiler.get();
+        def baseFile = assetFile?.baseFile ?: assetFile
+        AssetFile newFile = AssetHelper.fileForUri( url.path, null, null, baseFile)
+        if(newFile) {
+            def cssProcessor = new CssProcessor(precompiler)
+            return cssProcessor.process(text, newFile)
+        } else {
+            return null;            
+        }
+    }
+
     static String resolveUri(String path, NativeArray paths) {
         try {
             def fileName = AssetHelper.nameWithoutExtension(path)
             def assetFile = threadLocal.get();
+            def baseFile = assetFile?.baseFile ?: assetFile
             def newFile
             if( fileName.startsWith( AssetHelper.DIRECTIVE_FILE_SEPARATOR ) ) {
                 newFile = AssetHelper.fileForUri( fileName, 'text/css', null, assetFile?.baseFile )
@@ -156,7 +173,6 @@ class LessProcessor extends AbstractProcessor {
             }
 
             if (newFile) {
-
                 CacheManager.addCacheDependency(assetFile.path, newFile)
                 return "asset:///${newFile.path}".toString()
             }

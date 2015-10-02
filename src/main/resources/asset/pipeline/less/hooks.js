@@ -172,7 +172,13 @@ Envjs.connection = function(xhr, responseHandler, data){
         if(binary){
             xhr.responseText = new String(outstream.toByteArray(), 'UTF-8')+'';
         }else{
-            xhr.responseText = outstream.toString()+'';
+            //TODO GET BASE
+            if(/^asset\:/.test(url)) {
+                xhr.responseText = Packages.asset.pipeline.less.LessProcessor.contentForURL(outstream.toString(),url) + '';
+            } else {
+                xhr.responseText = outstream.toString()+'';    
+            }
+            
         }
         xhr.status = 200;
     }
